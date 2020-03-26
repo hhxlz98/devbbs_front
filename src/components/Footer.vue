@@ -1,5 +1,5 @@
 <template>
-  <footer class="footer">
+  <footer class="footer" >
     <div class="content has-text-center">
       <p>
         Created by <strong>赖嘉豪</strong>@
@@ -14,4 +14,7 @@
 </script>
 
 <style>
+  .footer{
+    background-color: #f9f7ff;
+  }
 </style>
