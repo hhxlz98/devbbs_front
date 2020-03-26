@@ -10,11 +10,19 @@ Vue.use(Vuex);
 export default new Vuex.Store({
 
 	state: {
-		isLogin: window.localStorage.getItem('isLogin' || '[]') == null ? '' : true,
+		isLogin: "",
 		user: {
 			userName:'',
 			userId:'',
-		}
+		},
+    registerUser: {
+      userEmail: "",
+      userPassword: "",
+
+      userName: "",
+      userSex: "",
+      userShow: "",
+    }
 	},
 	getters,
 	mutations,
