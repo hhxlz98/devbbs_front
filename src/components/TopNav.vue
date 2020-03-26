@@ -65,7 +65,7 @@
                         <b-checkbox>记住我</b-checkbox>
                       </section>
                       <footer class="modal-card-foot">
-                        <b-button type="is-primary" @click="login" expanded>登陆</b-button>
+                        <b-button type="is-primary" @click="login" expanded>登录</b-button>
                       </footer>
                     </div>
                   </b-dropdown-item>
@@ -106,7 +106,7 @@
    },
    methods: {
      register() {
-       this.$router.push("/register")
+       this.$router.push("/register");
      },
      login() {
        console.log(this.email, this.password);
