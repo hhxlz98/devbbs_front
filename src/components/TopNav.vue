@@ -1,99 +1,99 @@
 <template>
-  <nav class="navbar is-light" role="navigation" aria-label="main navigation">
-   <div class="navbar-brand">
-     <a class="navbar-item" href="/">
-       <img src="../assets/logo.png" width="100" height="28" />
-     </a>
+    <b-navbar type=is-light :spaced=true>
+        <template slot="brand" >
+            <b-navbar-item tag="router-link" :to="{ path: '/' }">
+                <img
+                    src="../assets/logo.png"
+                    alt="A platfrom for softerware developer"
+                >
+            </b-navbar-item>
+        </template>
+        <template slot="start">
+            <b-navbar-item href="#">
+                全部版块
+            </b-navbar-item>
+            <b-navbar-item href="#" v-if="$store.state.isLogin">
+                我的版块
+            </b-navbar-item>
+            <b-navbar-dropdown label="更多">
+                <b-navbar-item href="#">
+                    关于本站
+                </b-navbar-item>
+                <b-navbar-item href="#">
+                    联系我们
+                </b-navbar-item>
+            </b-navbar-dropdown>
 
-     <a
-       class="navbar-burger burger"
-       role="button"
-       aria-label="menu"
-       aria-expanded="false"
-       data-target="topNavbar">
-       <span aria-hidden="true"></span>
-       <span aria-hidden="true"></span>
-     </a>
+            <b-field>
+                <b-input v-model="searchString"
+                         placeholder="输入搜索内容..."
+                         type="search"
+                         icon="magnify"
+                         icon-clickable
+                         @icon-click="searchIconClick">
+                </b-input>
+            </b-field>
+        </template>
 
-    </div>
+        <template slot="end">
+          <div v-if="!$store.state.isLogin">
+            <b-navbar-item tag="div">
+                <div class="buttons">
+                    <a class="button is-primary" @click="register">
+                        <strong>注册</strong>
+                    </a>
+                            <div class="navbar-menu">
+                                <div class="navbar-end">
+                                    <b-dropdown position="is-bottom-left" aria-role="menu" trap-focus>
+                                        <a
+                                            class="navbar-item"
+                                            slot="trigger"
+                                            role="button">
+                                            <b-button type="is-info" outlined>登录</b-button>
+                                        </a>
 
-    <div id="topNavBar" class="navbar-menu">
+                                        <b-dropdown-item aria-role="menu-item" :focusable="false" custom paddingless>
+                                          <div class="modal-card" style="width:300px;">
+                                            <section class="modal-card-body">
+                                              <b-field label="Email">
+                                                <b-input type="email" v-model="email" placeholder="请输入邮箱" required></b-input>
+                                              </b-field>
 
-        <div class="level-item">
-          <div class="field has-addons">
-            <p class="control">
-              <input class="input" type="text" placeholder="输入搜索内容" />
-            </p>
-            <p class="control">
-              <button class="button">搜索</button>
-            </p>
+                                              <b-field label="密码">
+                                                <b-input
+                                                  type="password"
+                                                  password-reveal
+                                                  placeholder="请输入密码"
+                                                  required
+                                                  v-model="password"
+                                                ></b-input>
+                                              </b-field>
+
+                                              <b-checkbox>记住我</b-checkbox>
+                                            </section>
+                                            <footer class="modal-card-foot">
+                                              <b-button type="is-primary" @click="login" expanded>登录</b-button>
+                                            </footer>
+                                          </div>
+                                        </b-dropdown-item>
+                                    </b-dropdown>
+                                </div>
+                            </div>
+                </div>
+            </b-navbar-item>
           </div>
-        </div>
-          <a class="navbar-item">全部板块</a>
-          <a class="navbar-item" v-if="$store.state.isLogin">我的板块</a>
-
-    </div>
-
-    <div class="navbar-end" v-if="!$store.state.isLogin">
-        <div class="navbar-item">
-          <div class="buttons">
-            <b-button type="is-info" outlined @click="register">注册</b-button>
-            <div class="navbar-menu">
-              <div class="navbar-end">
-                <b-dropdown position="is-bottom-left" aria-role="menu" trap-focus>
-                  <a class="navbar-item" slot="trigger" role="button">
-                    <b-button type="is-info" outlined>登录</b-button>
-                  </a>
-
-                  <b-dropdown-item aria-role="menu-item" :focusable="false" custom paddingless>
-                    <div class="modal-card" style="width:300px;">
-                      <section class="modal-card-body">
-                        <b-field label="Email">
-                          <b-input type="email" v-model="email" placeholder="请输入邮箱" required></b-input>
-                        </b-field>
-
-                        <b-field label="密码">
-                          <b-input
-                            type="password"
-                            password-reveal
-                            placeholder="请输入密码"
-                            required
-                            v-model="password"
-                          ></b-input>
-                        </b-field>
-
-                        <b-checkbox>记住我</b-checkbox>
-                      </section>
-                      <footer class="modal-card-foot">
-                        <b-button type="is-primary" @click="login" expanded>登录</b-button>
-                      </footer>
-                    </div>
-                  </b-dropdown-item>
-                </b-dropdown>
-              </div>
+          <div v-else>
+            <div>
+              <i class="far fa-address-card">{{$store.state.user.userName}}</i>
             </div>
+            <div @click="logout">
+              <i class="fas fa-sign-out-alt">登出</i>
+              </div>
           </div>
-        </div>
-      </div>
+        </template>
+    </b-navbar>
+</template>
 
-    <div v-else>
-      <div>
-        <i class="far fa-address-card">{{$store.state.user.userName}}</i>
-      </div>
-      <div @click="logout">
-        <i class="fas fa-sign-out-alt">登出</i>
-        </div>
-    </div>
-
-
-
-
-
-
-
-   </nav>
-
- </template>
 
  <script>
 
@@ -102,6 +102,7 @@
      return {
        email: "",
        password: "",
+       searchString:"",
      };
    },
    methods: {
@@ -114,8 +115,17 @@
      },
      logout() {
 
-     }
+     },
+     searchIconClick(){
+       console.log(this.searchString);
+     },
 
    }
  }
  </script>
+
+ <style>
+   leftPadding {
+     margin-left: 4rem;
+   }
+ </style>
