@@ -9,10 +9,10 @@
             </b-navbar-item>
         </template>
         <template slot="start">
-            <b-navbar-item href="#">
+            <b-navbar-item href="/allPlate">
                 全部版块
             </b-navbar-item>
-            <b-navbar-item href="#" v-if="$store.state.isLogin">
+            <b-navbar-item href="/myPlate" v-if="$store.state.isLogin">
                 我的版块
             </b-navbar-item>
             <b-navbar-dropdown label="更多">
