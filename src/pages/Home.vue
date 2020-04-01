@@ -1,8 +1,10 @@
 <template>
-  <div id="home">
-  <TopNav />
-  <Tiles />
-  <Footer />
+  <div class="mainPage">
+    <div class="container">
+    <TopNav />
+    <Tiles />
+    <Footer />
+    </div>
   </div>
 </template>
 
@@ -21,3 +23,7 @@ export default {
   }
 };
 </script>
+
+<style>
+
+</style>
