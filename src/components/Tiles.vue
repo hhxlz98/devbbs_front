@@ -24,29 +24,29 @@
 
          <div class="tile is-parent">
            <div class="tile is-child box">
-             <p> Four </p>
-             <p> Four </p>
-             <p> Four </p>
-             <p> Four </p>
-             <p> Four </p>
-             <p> Four </p>
-             <p> Four </p>
-             <p> Four </p>
-             <p> Four </p>
+             <p>最新帖子</p>
+             <ul class="postList">
+               <li v-for="posting in newPostingList">
+                 <strong>•</strong>
+                 <router-link :to="{name:'post_content',params:{id:posting.id}}">
+                   <span class="topic_title">{{ posting.title | stringLengthConversion(50) }}</span>
+                 </router-link>
+               </li>
+             </ul>
            </div>
          </div>
 
          <div class="tile is-parent">
            <div class="tile is-child box">
-             <p> Five </p>
-             <p> Four </p>
-             <p> Four </p>
-             <p> Four </p>
-             <p> Four </p>
-             <p> Four </p>
-             <p> Four </p>
-             <p> Four </p>
-             <p> Four </p>
+               <p>热门帖子</p>
+               <ul class="postList">
+                 <li v-for="posting in hotPostingList">
+                   <strong>•</strong>
+                   <router-link :to="{name:'post_content',params:{id:posting.id}}">
+                     <span class="topic_title">{{ posting.title | stringLengthConversion(50) }}</span>
+                   </router-link>
+                 </li>
+               </ul>
            </div>
          </div>
 
@@ -64,62 +64,64 @@
   import LeftNavTile from "../components/home/LeftNavTile.vue";
   import LeftCorTile from "../components/home/LeftCorTile.vue";
   import News from "../components/News.vue"
+
   export default {
     data() {
       return {
-          navItems: [
-            {
-              id:1,
-              title:'热门板块',
-              list: [
-                {
-                src: require('../assets/icon/js.png'),
-                    name:'前端',
-                    url:'/article/js'
-                },
-                {
-                    src: require('../assets/icon/back.png'),
-                    name:'后端',
-                    url:'/article/back',
-
-                },
-                {
-                    src: require('../assets/icon/ai.png'),
-                    name:'人工智能',
-                    url:'/article/ai',
-                    hot:true
-                },
-                {
-                    src: require('../assets/icon/area.png'),
-                    name:'区块链',
-                    url:'www.baidu.com'
-                },
-                {
-                    src: require('../assets/icon/wx.png'),
-                    name:'小程序',
-                    url:'www.baidu.com'
-                },
-                {
-                    src: require('../assets/icon/safe.png'),
-                    name:'安全',
-                    url:'www.baidu.com'
-                },
-                {
-                    src: require('../assets/icon/ios.png'),
-                    name:'ios',
-                    url:'www.baidu.com'
-                },
-                {
-                    src: require('../assets/icon/tool.png'),
-                    name:'工具',
-                    url:'www.baidu.com'
-                },
-              ]
-            },
-          ],
-
-
-
+        hotPostingList:[
+          {
+            title:'文字为咋发顺丰阿斯弗？',
+            type:1,
+            id:1,
+          },
+          {
+            title:'啊的设备vhi为安抚安过',
+            type:2,
+            id:2,
+          },
+          {
+            title:'阿凡地方暗暗发誓',
+            type:1,
+            id:3,
+          },
+          {
+            title:'而尴尬的发生?aaf巴萨巴萨的阿布萨非八十八阿萨巴斯豆瓣八十八阿萨巴斯豆瓣',
+            type:1,
+            id:4,
+          },
+          {
+            title:'案发公司的',
+            type:1,
+            id:5,
+          },
+        ],
+        newPostingList:[
+          {
+            title:'文字为咋发顺丰阿斯弗？',
+            type:1,
+            id:1,
+          },
+          {
+            title:'啊的设备vhi为安抚安过',
+            type:2,
+            id:2,
+          },
+          {
+            title:'阿凡地方暗暗发誓',
+            type:1,
+            id:3,
+          },
+          {
+            title:'而尴尬的发生?aaf巴萨巴萨的阿布萨非八十八阿萨巴斯豆瓣八十八阿萨巴斯豆瓣',
+            type:1,
+            id:4,
+          },
+          {
+            title:'案发公司的',
+            type:1,
+            id:5,
+          },
+        ]
       }
     },
 
@@ -141,9 +143,21 @@
 <style>
   .tile-margin{
     margin-top: 10px;
-    margin-left: 125px;
-    margin-right: 125px;
+    margin-left: 55px;
+    margin-right: 55px;
+  }
+  .postList {
+    text-align: left;
+  }
+  .postList li {
+    padding-top: 5px;
   }
 
+  .topic_title {
+    color: #000000;
+  }
 
+  .postList a:hover {
+    text-decoration: underline;
+  }
 </style>
