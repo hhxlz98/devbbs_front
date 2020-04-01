@@ -55,7 +55,7 @@
            <span v-else>
              <el-button slot="reference" @click="follow">关注</el-button>
            </span>
-           <el-button slot="reference">进入板块</el-button>
+           <el-button slot="reference" @click="toPlate(plateInfo)">进入板块</el-button>
         </div>
   </el-card>
 </template>
@@ -81,6 +81,10 @@
 
       disFollow() {
         this.plateInfo.isFollow = false;
+      },
+
+      toPlate(plateInfo) {
+        this.$router.push({name:'plateContent',params:{id:plateInfo.id,name:plateInfo.typeName}})
       }
 
     }
