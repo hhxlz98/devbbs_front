@@ -84,7 +84,7 @@
       },
 
       toPlate(plateInfo) {
-        this.$router.push({name:'plateContent',params:{id:plateInfo.id,name:plateInfo.typeName}})
+        this.$router.push({name:'plateContent',params:{plateId:plateInfo.id,plateName:plateInfo.typeName}})
       }
 
     }
