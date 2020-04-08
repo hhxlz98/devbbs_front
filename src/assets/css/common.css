@@ -14,3 +14,10 @@
 .disabledColor {
   color: #cfcfcf;
 }
+
+.top_breadcrumb {
+  margin: 4px 0 4px;
+  border: 1px solid #e5e5e5;
+  padding: 4px 0 4px 4px;
+  background-color: #f8f8f8;
+}
