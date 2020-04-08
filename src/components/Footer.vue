@@ -16,5 +16,6 @@
 <style>
   .footer{
     background-color: #f9f7ff;
+    text-align: center;
   }
 </style>
