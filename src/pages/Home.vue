@@ -11,8 +11,8 @@
 <script>
 import TopNav from "../components/TopNav.vue"
 import Footer from "../components/Footer.vue"
-import News from "../components/News.vue"
-import Tiles from "../components/Tiles.vue"
+import News from "../components/home/News.vue"
+import Tiles from "../components/home/Tiles.vue"
 
 export default {
   components: {
