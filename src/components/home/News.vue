@@ -18,22 +18,22 @@
       return {
         addList: [
           {
-            src:require('../assets/adds/pic1.jpg'),
+            src:require('@/assets/adds/pic1.jpg'),
             alt:'',
             url:'https://www.baidu.com'
           },
           {
-            src:require('../assets/adds/pic2.jpg'),
+            src:require('@/assets/adds/pic2.jpg'),
             alt:'',
             url:'https://www.baidu.com'
           },
           {
-            src:require('../assets/adds/pic3.jpg'),
+            src:require('@/assets/adds/pic3.jpg'),
             alt:'',
             url:'https://www.baidu.com'
           },
           {
-            src:require('../assets/adds/pic4.jpg'),
+            src:require('@/assets/adds/pic4.jpg'),
             alt:'',
             url:'https://www.baidu.com'
           },

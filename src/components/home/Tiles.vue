@@ -52,18 +52,15 @@
 
        </div>
      </div>
-
-
-
    </div>
  </div>
 </template>
 
 
 <script>
-  import LeftNavTile from "../components/home/LeftNavTile.vue";
-  import LeftCorTile from "../components/home/LeftCorTile.vue";
-  import News from "../components/News.vue"
+  import LeftNavTile from "@/components/home/LeftNavTile.vue";
+  import LeftCorTile from "@/components/home/LeftCorTile.vue";
+  import News from "@/components/home/News.vue"
 
   export default {
     data() {
