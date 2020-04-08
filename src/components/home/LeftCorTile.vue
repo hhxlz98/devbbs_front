@@ -6,7 +6,7 @@
     </h2>
 
     <div v-for="corItem in corItems" :key='corItem.id'>
-      <h3>{{ corItem.title }}<span class="h3-line"> ——————</span></h3>
+      <h3>{{ corItem.title }}<span class="h3-line"> ———</span></h3>
       <ul>
         <li v-for="item in corItem.list" @click="adTo(item)">
           <p class="left-p">{{ item.name }}</p>

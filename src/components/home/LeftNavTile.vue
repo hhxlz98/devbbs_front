@@ -6,7 +6,7 @@
     </h2>
 
     <div v-for="navItem in navItems" :key='navItem.id'>
-      <h3>{{ navItem.title }}<span class="h3-line"> ——————</span></h3>
+      <h3>{{ navItem.title }}<span class="h3-line"> ———</span></h3>
       <ul>
         <li v-for="item in navItem.list" @click="pageTo(item)">
           <img :src="item.src" alt="" width="15px;" class="left-img">
