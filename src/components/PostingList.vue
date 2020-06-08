@@ -4,12 +4,12 @@
       <ul>
         <li>
           <div class="headBar">
-            <span @click="changeTo(1)" :class="{isActive:isShow === 1}">全部</span>
-            <span @click="changeTo(2)" :class="{isActive:isShow === 2}">精华</span>
-            <span @click="changeTo(3)" :class="{isActive:isShow === 3}">分享</span>
-            <span @click="changeTo(4)" :class="{isActive:isShow === 4}">问答</span>
+            <span @click="changeTo('All')" :class="{isActive:isShow === 'All'}">全部</span>
+            <span @click="changeTo('Good')" :class="{isActive:isShow === 'Good'}">精华</span>
+            <span @click="changeTo('Share')" :class="{isActive:isShow === 'Share'}">分享</span>
+            <span @click="changeTo('Ask')" :class="{isActive:isShow === 'Ask'}">问答</span>
 
-            <el-dropdown style="float: right;"  @command="toPublishPost">
+            <el-dropdown style="float: right; margin-right: 4px;"  @command="toPublishPost">
               <span class="el-dropdown-link">
                 <i class="el-icon-edit-outline">发帖</i>
               </span>
@@ -26,177 +26,132 @@
           <div>
             <span class="leftHeadTitle">文章</span>
             <div class="rightHeadTitle">
-            <span style="padding-right: 55px;">作者</span>
-            <span style="padding-right: 15px;">回复/浏览量</span>
-            <span style="margin-right: 5px;">上一次回复</span>
+              <span style="padding-right: 55px;">作者</span>
+              <span style="padding-right: 15px;">回复/浏览量</span>
+              <span style="margin-right: 5px;">上一次回复</span>
+            </div>
           </div>
-          </div>
-<!--          <div class="leftHeadTitle">文章</div>
-
-          <div class="rightHeadTitle">
-            <span style="padding-right: 55px;">作者</span>
-            <span style="padding-right: 15px;">回复/浏览量</span>
-            <span style="margin-right: 5px;">上一次回复</span>
-          </div> -->
-
-
-
 
         </li>
 
         <li v-for="post in postList" class="mainList">
           <div>
           <span class="leafMainPost">
-            <span v-if="post.putTop" class="putTop">置顶</span>
-            <span v-if="post.putGood" class="putGood">精华</span>
-            <span class="putNormal"> {{ post.postTab | tabFormatter }} </span>
-            <router-link :to="{name:'postContent', params:{postId:post.id,name:post.authorName}}">
+            <PostTag :put-top="post.putTop" :put-good="post.putGood" :tab="post.tab"></PostTag>
+            <router-link :to="{name:'postContent', params:{postId:post.postId, name:post.title}}">
               <span class="postTitle"> {{ post.title | stringLengthConversion(56) }}</span>
             </router-link>
           </span>
 
-
-
-
           <div class="postInfo">
-            <div class="autherName"> {{ post.authorName }} </div>
+            <div class="authorName">
+              <LinkUserName :userName="post.authorName" :userId="post.authorId"></LinkUserName>
+            </div>
             <div class="infoNumber">
-              <span class="replyNumber">{{ post.replyCount }} </span> / {{ post.visitCount }}
+              <span class="replyNumber">{{ post.replyNumber }} </span> / {{ post.visitNumber }}
             </div>
 
-            <div class="lastReply"> {{ post.lastReply | timeFormatterToLast }}</div>
+            <div class="lastReply"> {{ post.replyTime | timeFormatterToLast }}</div>
           </div>
         </div>
         </li>
 
-        <li>
-          <el-pagination
-            background
-            layout="prev, pager, next"
-            :total="100">
-          </el-pagination>
-        </li>
-
-
+        <div v-if="!postList.length > 0" class="no_post">
+        暂无帖子~
+        </div>
       </ul>
     </div>
+    <el-pagination
+      @current-change="currentPageChange"
+      style="padding: 4px 0 4px;"
+      background
+      layout="prev, pager, next, jumper"
+      :total="total"
+      :page-size="pageSize">
+    </el-pagination>
 
   </div>
 </template>
 
 <script>
+  import PostTag from './post/PostTag.vue'
+  import LinkUserName from './common/LinkUserName.vue'
+  import { getPostList } from '@/api'
   export default {
     data() {
       return {
         isLoading: false,
-        isShow: 1,
+        isShow: 'All',
+        total: 100,
+        currentPage: 1,
+        pageSize: 10,
         postList: [
-          {
-            id:131,
-            title:"asf我无法安抚啊发射点发asf我无法安抚啊发射点发asf我无法安抚啊发射点发",
-            authorName: "hhxlz",
-            visitCount: 100,
-            replyCount: 188,
-            publishTime: 1585707307000,
-            lastReply: 1585994007000,
-            putGood: true,
-            putTop: true,
-            postTab: "ask",
-          },
-          {
-            id:546,
-            title:"asf22244我无法安抚啊发射点发",
-            authorName: "hhxlz",
-            visitCount: 100,
-            replyCount: 18,
-            publishTime: 1585717007000,
-            lastReply: 1585917407000,
-            putGood: false,
-            putTop: true,
-            postTab: "ask",
-          },
-          {
-            id:131,
-            title:"如何成为一个前端大佬",
-            authorName: "hhxlz",
-            visitCount: 100,
-            replyCount: 188,
-            publishTime: 1585707307000,
-            lastReply: 1585833907000,
-            putGood: false,
-            putTop: false,
-            postTab: "ask",
-          },
-          {
-            id:131,
-            title:"element-ui使用经验分享",
-            authorName: "hhxlz",
-            visitCount: 100,
-            replyCount: 188,
-            publishTime: 1585707307000,
-            lastReply: 1585233907000,
-            putGood: true,
-            putTop: false,
-            postTab: "share",
-          },
-          {
-            id:131,
-            title:"如何快速掌握vue.js?",
-            authorName: "hhxlz",
-            visitCount: 100,
-            replyCount: 188,
-            publishTime: 1585707307000,
-            lastReply: 1585133907000,
-            putGood: false,
-            putTop: false,
-            postTab: "ask",
-          },
-          {
-            id:131,
-            title:"请大佬进来看一下这个bug",
-            authorName: "hhxlz",
-            visitCount: 100,
-            replyCount: 188,
-            publishTime: 1585707307000,
-            lastReply: 1584833907000,
-            putGood: false,
-            putTop: false,
-            postTab: "ask",
-          },
-          {
-            id:131,
-            title:"h5学习分享",
-            authorName: "hhxlz",
-            visitCount: 100,
-            replyCount: 188,
-            publishTime: 1585707307000,
-            lastReply: 1584633907000,
-            putGood: false,
-            putTop: false,
-            postTab: "share",
-          },
+
         ],
       }
     },
     methods: {
-      toPublishPost(command) {
-        if (command == 'a')
-          this.$router.push({name:'publishPost', params:{type:'Share'}})
-        else if (command == 'b')
-          this.$router.push({name:'publishPost', params:{type:'Ask'}})
-      }
-    }
+      changeTo(value) {
+        if (this.isShow != value) {
+          this.isShow = value;
+          this.getList();
+        }
 
+      },
+      currentPageChange(val) {
+        this.currentPage = val;
+        this.getList();
+      },
+      toPublishPost(command) {
+        if (this.$store.state.isLogin) {
+          if (command == 'a')
+            this.$router.push({name:'publishPost',
+                               params:{type:'Share', plateId:this.$route.params.plateId},
+                               })
+          else if (command == 'b')
+            this.$router.push({name:'publishPost',
+                               params:{type:'Ask', plateId:this.$route.params.plateId}
+                              })
+        } else {
+          this.CommonUtil.userLoginInfo();
+        }
+
+      },
+      getList() {
+        this.isLoading = true;
+        getPostList(this.$route.params.plateId, this.isShow,
+                    this.currentPage, this.pageSize).then(response => {
+                      const data = response.data;
+                      console.log(data);
+                        if(data.code == "403") {
+                          this.postList = data.info.list;
+                          this.total = data.info.total;
+                          this.isLoading = false;
+                        }
+                      })
+
+      },
+    },
+    mounted() {
+      this.getList()
+
+    },
+    components: {
+      PostTag,
+      LinkUserName,
+    }
   }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
   .postList {
     background-color: #ffffff;
   }
 
   .posts {
     margin-top: 10px;
+    min-height: 450px;
+    border-bottom: 1px solid #e5e5e5;
   }
 
   ul {
@@ -250,7 +205,7 @@
   .mainList {
     padding: 9px;
     font-size: 15px;
-    border-top: 1px solid #f0f0f0;
+    border-bottom: 1px solid #f0f0f0;
   }
   .mainList:hover {
     background-color: #f5f5f5;
@@ -258,30 +213,6 @@
   .mainList span {
     line-height: 30px;
   }
-  .putGood,.putTop {
-    background: #80bd01;
-    padding: 2px 2px 2px 2px;
-    border-radius: 3px;
-    -webkit-border-radius: 3px;
-    -moz-border-radius: 3px;
-    -o-border-radius: 3px;
-    color: #fff;
-    font-size: 12px;
-    margin-right: 3px;
-    margin-bottom: 1px;
-  }
-  .putNormal {
-    background-color: #e5e5e5;
-    color: #999;
-    padding: 2px 0px 2px 3px;
-    border-radius: 3px;
-    -webkit-border-radius: 3px;
-    -moz-border-radius: 3px;
-    -o-border-radius: 3px;
-    font-size: 12px;
-    margin-right: 7px;
-  }
-
   .leafMainPost{
     width: 70%;
     display:inline-block;
@@ -296,7 +227,7 @@
     float: right;
   }
 
-  .autherName {
+  .authorName {
     text-align: left;
     width: 86px;
     display: inline-block;
@@ -323,7 +254,6 @@
     text-decoration: underline;
   }
 
-
   .lastReply {
     text-align: right;
     width: 50px;
@@ -331,11 +261,17 @@
     display: inline-block;
     white-space: nowrap;
     float: right;
-    color: #778087;
+    color: $only-read-color;
     font-size: 12px;
   }
 
-
+  .no_post {
+    text-align: center;
+    color: $only-read-color;
+    font-weight: bold;
+    font-size: 14px;
+    margin: 122px 0 2px 8px;
+  }
 
 
 
