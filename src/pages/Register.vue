@@ -2,16 +2,36 @@
   <div style="text-align: center;">
     <TopNav />
     <section>
-      <b-steps>
-        <b-step-item label="第一步" icon="account-key">
+      <b-steps size="is-small" style="padding: 8px 0 8px">
+        <b-step-item label="基础信息" icon="account-key">
           <First />
         </b-step-item>
-        <b-step-item label="第二步" icon="account">
+        <b-step-item label="增强信息" icon="account">
           <Second />
         </b-step-item>
-        <b-step-item label="第三步" icon="account-plus">
+        <b-step-item label="用户授权" icon="account-plus">
           <Third />
         </b-step-item>
+        <template
+                        slot="navigation"
+                        slot-scope="{previous, next}">
+                        <b-button
+                            outlined
+                            type="is-danger"
+                            :disabled="previous.disabled"
+                            @click.prevent="previous.action">
+                            <i class="fa fa-arrow-left" aria-hidden="true"></i>
+                            上一步
+                        </b-button>
+                        <b-button
+                            outlined
+                            type="is-success"
+                            :disabled="next.disabled"
+                            @click.prevent="next.action">
+                            下一步
+                            <i class="fa fa-arrow-right" aria-hidden="true"></i>
+                        </b-button>
+                    </template>
       </b-steps>
     </section>
     <Footer />
