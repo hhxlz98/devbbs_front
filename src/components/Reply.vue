@@ -1,74 +1,229 @@
 <template>
   <article class="media reply_all">
+    <el-dialog
+      :visible.sync="reportDialogVisible"
+      width="25%">
+      <template slot="title">
+        <span>举报用户{{reply.author.userName | stringLengthConversion(16)}}的回复</span>
+      </template>
+      <ReportForm :type="1" :typeId="reply.commentId" :reportedUserId="reply.author.userId" :plateId="plateId" @report-success="reportSuccess"></ReportForm>
+    </el-dialog>
+    <Share :link="link" :shareDialogVisible="shareDialogVisible" @share-close="shareDialogVisible = false"></Share>
     <figure class="media-left author_info">
-      <router-link :to="{name:'userInfo', params:{userID:reply.author.id, userName:reply.author.name}}">
-        <el-avatar :size="50" :src="reply.author.profileSrc"></el-avatar>
-        <p>{{reply.author.name}}</p>
+      <router-link target="_blank" :to="{name:'userInfo', params:{userId:reply.author.userId, userName:reply.author.userName}}">
+        <el-avatar :size="50" :src="this.CommonUtil.baseUrl + reply.author.imgUrl"></el-avatar>
+        <p>{{reply.author.userName}}</p>
       </router-link>
     </figure>
 
     <div class="media-content reply_main">
       <div class="reply_info">
-        <span>{{reply.number}}楼</span>
-        <span> {{reply.time}}</span>
+        <span>{{reply.floorNumber}}楼</span>
+        <span> {{reply.publishTime | timeFormatterToString}}</span>
       </div>
 
       <div class="icon_btn">
-        <el-tooltip class="item" effect="light" content="赞同" placement="top">
-          <el-button class="like_button" :class="{liked: reply.isLiked}" type= "text" size="mini" icon="el-icon-caret-top">{{reply.liked}}</el-button>
-        </el-tooltip>
+        <el-button class="like_button" title="赞同" @click="clickLikeButton":class="{liked: reply.isFollow}" type= "text" size="mini" icon="el-icon-caret-top">{{reply.likeNumber}}</el-button>
       </div>
 
       <div class="reply_content">
-        <p class="to_reply" v-if="reply.to">{{reply.to}}</p>
+        <p class="to_reply" v-if="reply.upId > 0">回复 {{reply.upInfo}}:</p>
         <div v-html="reply.content" style="margin-left: 6px;"></div>
-        <div v-if="reply.reward" style="margin-top: 10px; margin-left: 4px;">
+        <div v-if="type == 'Ask' && (reply.best || reply.helpful)" style="margin-top: 10px; margin-left: 4px;">
           <span class="reply_reward">
-            <span v-if="reply.reward.type == 'best'">最佳回答奖励:+{{reply.reward.number}}</span>
-            <span v-else-if="reply.reward.type == 'helpful'">热心回答奖励:+{{reply.reward.number}}</span>
+            <span v-if="reply.best">最佳回答奖励:+{{reward.reward}}积分</span>
+            <span v-else-if="reply.helpful">热心回答奖励:+{{reward.helpfulReward}}积分</span>
           </span>
         </div>
       </div>
       <div class="reply_tool">
-        <el-dropdown>
+        <el-dropdown trigger="click" title="更多" @command="handleCommand">
           <span class="el-dropdown-link">
             <i class="el-icon-arrow-down el-icon--right"></i>
           </span>
           <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item icon="el-icon-share">分享</el-dropdown-item>
-            <el-dropdown-item icon="el-icon-warning-outline">举报</el-dropdown-item>
+            <el-dropdown-item icon="el-icon-share" command='a'>分享</el-dropdown-item>
+            <el-dropdown-item icon="el-icon-warning-outline" command='b'>举报</el-dropdown-item>
           </el-dropdown-menu>
         </el-dropdown>
-        <el-tooltip class="item" effect="light" content="回复" placement="top">
-          <el-button style="border:none;" icon="el-icon-chat-square" size="small" circle></el-button>
-        </el-tooltip>
+        <el-dropdown v-if="plus" title="悬赏分配" @command="clickAssignButton" trigger="click">
+          <span class="el-dropdown-link">
+            <i class="el-icon-plus el-icon--right"></i>
+          </span>
+          <el-dropdown-menu slot="dropdown">
+            <el-dropdown-item command='0'>最佳回答</el-dropdown-item>
+            <el-dropdown-item command='1'>热心助人</el-dropdown-item>
+          </el-dropdown-menu>
+        </el-dropdown>
+        <el-button title="回复" type="text" style="border:none; color: #000000;" icon="el-icon-chat-square" size="small" @click="clickReplyButton" circle></el-button>
       </div>
     </div>
   </article>
 </template>
 
 <script>
+  import ReportForm from './report/ReportForm.vue'
+  import Share from './common/Share.vue'
+  import {likeComment} from '@/api'
+  import {unlikeComment} from '@/api'
+  import {assignReward} from '@/api'
   export default {
     data() {
       return {
+        link: '',
+        shareDialogVisible: false,
+        reportDialogVisible: false,
         reply: {
-          content: '我也不知道是为啥，帮顶',
+          content: '',
           author: {
-            id: 111,
-            profileSrc: "https://shadow.elemecdn.com/app/element/hamburger.9cf7b091-55e9-11e9-a976-7f4d0b07eef6.png",
-            name: 'hhxlz',
+            userId: '',
+            imgUrl: '',
+            userName: '',
           },
-          number: 2,
-          time: '2020-04-07 22:21',
-          to: '回复 大佬(1L)：',
-          liked: 3,
-          isLiked: false,
-          reward: {
-            type: 'best',
-            number: '50',
-          },
-      },
+          floorNumber: '',
+          publishTime: '',
+          upId: '',
+          upInfo: '',
+          likeNumber: '',
+          isFollow: '',
+        },
+        reward: {
+          bestReward: '',
+          helpfulReward: '',
+        },
+        // type:'',
+        // role:'',
+        // status: '',
       }
+    },
+    props: {
+      replyInfo:{
+        type: Object,
+        default:()=>{}
+      },
+      rewardInfo: {
+        type: Object,
+        default:()=>{}
+      },
+      type: {
+        type: String,
+      },
+      role: {
+        type: String,
+      },
+      status: {
+        type: Number,
+      },
+      plateId: {
+        type: Number,
+      }
+    },
+    watch:{
+      'replyInfo.likeNumber': {
+        handler (newValue, oldValue) {
+          this.reply.likeNumber = newValue;
+        },
+      },
+      'replyInfo.isFollow': {
+        handler (newValue, oldValue) {
+          this.reply.isFollow = newValue;
+        },
+      },
+      replyInfo: {
+        handler(newValue, oldValue) {
+          this.reply = newValue
+        }
+      }
+    },
+    methods: {
+      clickLikeButton() {
+        if(!this.$store.state.isLogin) {
+          this.CommonUtil.userLoginInfo();
+        } else {
+          var type = 0;
+          if (this.reply.isFollow) {
+            type = 1;
+          }
+          if (type == 0) {
+            likeComment(this.reply.commentId, this.$store.state.user.userId, 0).then(response => {
+              const data = response.data;
+              if (data.code == '604') {
+                this.reply.likeNumber += 1;
+                this.reply.isFollow = true;
+              }
+            })
+          } else {
+            unlikeComment(this.reply.commentId, this.$store.state.user.userId, 0).then(response => {
+              const data = response.data;
+              if (data.code == '605') {
+                this.reply.likeNumber -= 1;
+                this.reply.isFollow = false;
+              }
+            })
+          }
+        }
+      },
+      clickAssignButton(type) {
+        assignReward(this.reply.postId, this.reply.commentId, type).then(response => {
+          const data = response.data;
+          var info = '';
+          if (data.code == '606') {
+            info = "已分配最佳奖励"
+          } else if (data.code == '607') {
+            info = "已分配热心奖励"
+          } else if (data.code == '608') {
+            info = "热心奖励已无"
+          }
+          this.$router.push({
+            path:'/transition',
+            query: {
+              info: info,
+              url: this.$route.path,
+            }
+          })
+        })
+      },
+      clickReplyButton() {
+        if (this.$store.state.isLogin) {
+          var info = "回复："+this.reply.author.userName+"("+this.reply.floorNumber + "L)";
+          this.$emit('replyHandler',info, this.reply.commentId);
+        } else {
+          this.CommonUtil.userLoginInfo();
+        }
+      },
+      handleCommand(command) {
+        if (command == 'a') {
+          this.shareDialogVisible = true;
+        } else if (command == 'b') {
+          if (this.$store.state.isLogin) {
+            this.reportDialogVisible = true;
+          } else {
+            this.CommonUtil.userLoginInfo();
+          }
+        }
+      },
+      reportSuccess() {
+        this.reportDialogVisible = false;
+      }
+    },
+    computed: {
+      plus: function(){
+        // console.log(this.role, this.type, this.status, this.reply.best, this.reply.helpful)
+        if (this.role == 'owner' && this.type == 'Ask' && this.status == 0 && !this.reply.best && !this.reply.helpful &&this.reply.author.userId != this.$store.state.user.userId) {
+          return true;
+        } else {
+        return false;
+        }
+      },
+    },
+    mounted() {
+      this.reply = this.replyInfo;
+      this.reward = this.rewardInfo;
+      this.link = window.location.href
+    },
+    components: {
+      ReportForm,
+      Share,
     }
   }
 </script>
@@ -86,8 +241,8 @@
  .author_info {
    font-size: 12px;
    text-align: center;
-   padding: 4px 4px 0 4px;
-   width: 80px;
+   padding: 8px 4px 0 4px;
+   width: 100px;
   }
   .author_info p {
     color: #000000;
