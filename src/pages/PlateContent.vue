@@ -1,5 +1,6 @@
 <template>
   <div class="mainPage">
+    <el-backtop></el-backtop>
     <div class="container">
     <TopNav />
     <div>
