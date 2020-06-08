@@ -117,6 +117,7 @@
   }
   .left-block li:hover {
     background-color: #e4f8e9;
+    cursor: pointer;
   }
   .h3-line{
     color: #d4d4d4;
