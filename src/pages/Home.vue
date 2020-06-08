@@ -20,6 +20,28 @@ export default {
     Footer,
     News,
     Tiles,
+  },
+  created() {
+    let self = this;
+    let code1 = 0;
+    let code2 = 0;
+    document.onkeydown = function (e) {
+      let evn = e || event;
+      let key = evn.keyCode || evn.which || evn.charCode;
+      if (key === 112 ) {
+        code1 = 1;
+        console.log("f1");
+      }
+      if (key === 17) {
+        code2 = 1;
+        console.log("ctrl");
+      }
+      if (code1 === 1 && code2 === 1) {
+        self.$router.push("/backLogin");
+        code1 = 0;
+        code2 = 0;
+      }
+    }
   }
 };
 </script>
