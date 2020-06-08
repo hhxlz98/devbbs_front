@@ -1,14 +1,49 @@
 <template>
   <div>
+    <el-dialog
+      :visible.sync="editorDialogVisible"
+      width="30%">
+      <template slot="title">
+        <span style="font-size: 14px;">编辑板块</span>
+      </template>
+      <EditorPlateForm size="mini" :plateInfo="plateInfo" :plateNameEditable="true" :userId="$store.state.user.userId" @update-success="getInfo"></EditorPlateForm>
+      <span slot="footer" class="dialog-footer">
+        <el-button type="danger" size="mini" @click="editorDialogVisible = false">取 消</el-button>
+      </span>
+    </el-dialog>
+    <el-dialog
+      :visible.sync="reportDialogVisible"
+      width="55%">
+      <template slot="title">
+        <span style="font-size: 14px;">举报处理</span>
+      </template>
+      <ReportTable :plateId="$route.params.plateId"></ReportTable>
+      <span slot="footer" class="dialog-footer">
+        <el-button type="danger" size="mini" @click="editorDialogVisible = false">取 消</el-button>
+      </span>
+    </el-dialog>
+
     <div class="plateInfo">
-      <div class="topBar">板块信息</div>
+      <div class="topBar">
+        板块信息
+        <el-dropdown @command="handleCommand" trigger="click" title="管理"
+          style="float: right" v-if="plateInfo.isManage">
+          <span class="el-dropdown-link">
+            <i class="el-icon-arrow-down el-icon--right"></i>
+          </span>
+          <el-dropdown-menu slot="dropdown">
+            <el-dropdown-item icon="fa fa-pencil-square-o" command='a'>修改信息</el-dropdown-item>
+            <el-dropdown-item icon="fa fa-user-times" command='b'>举报处理</el-dropdown-item>
+          </el-dropdown-menu>
+        </el-dropdown>
+      </div>
         <div class="imgContain">
-          <el-avatar class="plateImg" shape="square" fit="fill" src="https://shadow.elemecdn.com/app/element/hamburger.9cf7b091-55e9-11e9-a976-7f4d0b07eef6.png"></el-avatar>
+          <el-avatar class="plateImg" shape="square" fit="fill" :src="imgUrl"></el-avatar>
         </div>
 
         <div class="plateData">
-          <span class="plateName">{{plateInfo.name}}</span>
-          <div class="plateNumber">关注数 {{plateInfo.followed | numberFormatter()}}  <br/>帖子 {{plateInfo.posts | numberFormatter()}}</div>
+          <span class="plateName">{{plateInfo.plateName}}</span>
+          <div class="plateNumber">关注数 {{plateInfo.followNumber | numberFormatter()}}  <br/>帖子数 {{plateInfo.postNumber | numberFormatter()}}</div>
 
           <div style="text-align:center; margin-top: 3px;">
             <span v-if="plateInfo.isFollow">
@@ -16,7 +51,7 @@
                 confirmButtonText='确认'
                 cancelButtonText='取消'
                 icon="el-icon-question"
-                iconColor="green"
+                iconColor="red"
                 title="取消关注？"
                 @onConfirm="disFollow"
               >
@@ -24,41 +59,103 @@
               </el-popconfirm>
             </span>
             <span v-else>
-              <el-button type="primary" size="mini">+ 关注</el-button>
+              <el-button type="primary" size="mini" @click="follow">+ 关注</el-button>
             </span>
           </div>
         </div>
         <div class="plateIntroduction">
           <span>板块简介</span><br/>
-          <span class="introText">{{ plateInfo.intro }}</span>
+          <span class="introText">{{ plateInfo.plateIntro }}</span>
         </div>
     </div>
-
-    <div class="plateInfo">
-      <div class="topBar">板块相关</div>
-
-
-
-    </div>
-
 
   </div>
 </template>
 
 <script>
+  import {getPlateInfo} from '@/api'
+  import {addPlateRelate} from '@/api'
+  import {deletePlateRelate} from '@/api'
+
+  import ReportTable from "./report/PlateReportTable.vue"
+  import EditorPlateForm from "./backManange/plate/EditorPlateForm.vue"
   export default {
     data() {
       return {
-        plateInfo: {
-          id:165,
-          name:"vue.js",
-          intro:"一套用于构建用户界面的渐进式框架。与其它大型框架不同的是，Vue 被设计为可以自底向上逐层应用。Vue 的核心库只关注视图层，不仅易于上手，还便于与第三方库或既有项目整合。另一方面，当与现代化的工具链以及各种支持类库结合使用时，Vue 也完全能够为复杂的单页应用提供驱动。",
-          followed: 36045,
-          posts: 1244550,
-          isFollow: true,
+        imgUrl: '',
+        editorDialogVisible: false,
+        reportDialogVisible: false,
+        plateInfo: {},
+      }
+    },
+    methods: {
+      getInfo() {
+        getPlateInfo(this.$store.state.user.userId, this.$route.params.plateId).then(response => {
+          const data = response.data;
+          console.log(data)
+          if(data.code == "207") {
+            this.plateInfo = data.info;
+            this.imgUrl = this.CommonUtil.baseUrl + data.info.imgUrl;
+          }
+        })
+      },
+      disFollow() {
+        if(!this.$store.state.isLogin) {
+          this.CommonUtil.userLoginInfo();
+        } else {
+          var type = 0;
+          deletePlateRelate(this.$store.state.user.userId, this.$route.params.plateId, type)
+          .then(response => {
+            const data = response.data;
+
+            if(data.code == "303") {
+              this.$message({
+                        message: '取消关注成功',
+                        type: 'success'
+                      });
+              this.plateInfo.isFollow = false;
+               this.plateInfo.followNumber -= 1;
+            }
+          })
+
+        }
+      },
+      follow() {
+        if(!this.$store.state.isLogin) {
+          this.CommonUtil.userLoginInfo();
+        } else {
+          var type = 0;
+          addPlateRelate(this.$store.state.user.userId, this.$route.params.plateId, type)
+          .then(response => {
+            const data = response.data;
+
+            if(data.code == "302") {
+              this.$message({
+                        message: '关注成功',
+                        type: 'success'
+                      });
+              this.plateInfo.isFollow = true;
+              this.plateInfo.followNumber += 1;
+            }
+          })
+        }
+      },
+      handleCommand(command){
+        if(command == 'a') {
+          this.editorDialogVisible = true;
+        } else if (command == 'b') {
+          this.reportDialogVisible = true;
         }
       }
-    }
+
+    },
+    mounted() {
+      this.getInfo()
+    },
+    components: {
+      EditorPlateForm,
+      ReportTable,
+    },
   }
 </script>
 
