@@ -1,6 +1,9 @@
-function aaa(){
-  console.log("1111")
-}
+import { MessageBox } from 'element-ui';
+import { Notification } from 'element-ui';
+
+
+const baseUrl = "http://localhost:9091"
+
 
 function stringLengthLongerThan(str, len){
   var strlen = 0;
@@ -17,6 +20,17 @@ function stringLengthLongerThan(str, len){
     return false;
 }
 
+function userLoginInfo() {
+  Notification({
+      title: '请登录',
+      message: '登录后可进行更多操作~',
+      type: 'error',
+      duration: 0
+    });
+}
+
 export default {
+  baseUrl,
   stringLengthLongerThan,
+  userLoginInfo,
 }
