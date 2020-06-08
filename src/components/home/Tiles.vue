@@ -28,9 +28,10 @@
              <ul class="postList">
                <li v-for="posting in newPostingList">
                  <strong>•</strong>
-                 <router-link :to="{name:'post_content',params:{id:posting.id}}">
+                 <router-link :to="{name:'postContent',params:{postId: posting.postId, name: posting.title}}">
                    <span class="topic_title">{{ posting.title | stringLengthConversion(50) }}</span>
                  </router-link>
+                 <PostTag :putTop="posting.putTop" :putGood="posting.putGood" :tab="posting.tab" style="float: right;"></PostTag>
                </li>
              </ul>
            </div>
@@ -42,9 +43,10 @@
                <ul class="postList">
                  <li v-for="posting in hotPostingList">
                    <strong>•</strong>
-                   <router-link :to="{name:'post_content',params:{id:posting.id}}">
+                   <router-link :to="{name:'postContent',params:{postId: posting.postId, name: posting.title}}">
                      <span class="topic_title">{{ posting.title | stringLengthConversion(50) }}</span>
                    </router-link>
+                   <PostTag :putTop="posting.putTop" :putGood="posting.putGood" :tab="posting.tab" style="float: right;"></PostTag>
                  </li>
                </ul>
            </div>
@@ -61,63 +63,17 @@
   import LeftNavTile from "@/components/home/LeftNavTile.vue";
   import LeftCorTile from "@/components/home/LeftCorTile.vue";
   import News from "@/components/home/News.vue"
-
+  import PostTag from '../post/PostTag.vue'
+  import { latestPost } from '@/api'
+  import { hotPost } from '@/api'
   export default {
     data() {
       return {
         hotPostingList:[
-          {
-            title:'文字为咋发顺丰阿斯弗？',
-            type:1,
-            id:1,
-          },
-          {
-            title:'啊的设备vhi为安抚安过',
-            type:2,
-            id:2,
-          },
-          {
-            title:'阿凡地方暗暗发誓',
-            type:1,
-            id:3,
-          },
-          {
-            title:'而尴尬的发生?aaf巴萨巴萨的阿布萨非八十八阿萨巴斯豆瓣八十八阿萨巴斯豆瓣',
-            type:1,
-            id:4,
-          },
-          {
-            title:'案发公司的',
-            type:1,
-            id:5,
-          },
+
         ],
         newPostingList:[
-          {
-            title:'文字为咋发顺丰阿斯弗？',
-            type:1,
-            id:1,
-          },
-          {
-            title:'啊的设备vhi为安抚安过',
-            type:2,
-            id:2,
-          },
-          {
-            title:'阿凡地方暗暗发誓',
-            type:1,
-            id:3,
-          },
-          {
-            title:'而尴尬的发生?aaf巴萨巴萨的阿布萨非八十八阿萨巴斯豆瓣八十八阿萨巴斯豆瓣',
-            type:1,
-            id:4,
-          },
-          {
-            title:'案发公司的',
-            type:1,
-            id:5,
-          },
+
         ]
       }
     },
@@ -125,13 +81,33 @@
     methods: {
       toPlate(item) {
         this.$router.push(item.url);
+      },
+      getLatestPost() {
+        latestPost().then(response => {
+          const data = response.data;
+          if (data.code == '416') {
+            this.newPostingList = data.info;
+          }
+        })
+      },
+      getHotPost() {
+        hotPost().then(response => {
+          const data = response.data;
+          if (data.code == '417') {
+            this.hotPostingList = data.info;
+          }
+        })
       }
     },
-
+    mounted() {
+      this.getHotPost()
+      this.getLatestPost()
+    },
     components: {
       LeftNavTile,
       LeftCorTile,
       News,
+      PostTag,
     }
 
   }
