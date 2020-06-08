@@ -24,43 +24,48 @@
 </template> -->
 
 <template>
-  <el-card :body-style="{ padding: '1px' }" shadow="hover" class="palteCard">
-        <el-avatar class="plateImage" shape="square" fit="fill" src="https://shadow.elemecdn.com/app/element/hamburger.9cf7b091-55e9-11e9-a976-7f4d0b07eef6.png"></el-avatar>
+  <el-card :body-style="{ padding: '1px' }" shadow="hover" class="plateCard">
+        <el-avatar class="plateImage" shape="square" fit="fill" :src="this.CommonUtil.baseUrl + plateInfo.imgUrl"></el-avatar>
         <div style="padding: 2px;">
-          <span>{{ plateInfo.typeName }}</span>
+          <span>{{ plateInfo.plateName }}</span>
           <div class="desc clearfix">
-           <span class="palteDescContent">{{ plateInfo.typeDesc | stringLengthConversion(22) }}</span>
+           <span class="palteDescContent">{{ plateInfo.plateIntro | stringLengthConversion(22) }}</span>
            <el-popover
-               v-if="this.commonFunction.stringLengthLongerThan(plateInfo.typeDesc,22)"
+               v-if="this.CommonUtil.stringLengthLongerThan(plateInfo.plateIntro,22)"
                placement="bottom"
                title="板块简介"
                width="200"
                trigger="click"
-               :content=plateInfo.typeDesc>
+               style="float: right;"
+               :content=plateInfo.plateIntro>
                <el-button type="text" class="popButton" slot="reference">更多</el-button>
              </el-popover>
            </div>
-           <span v-if="plateInfo.isFollow">
-             <el-popconfirm
-               confirmButtonText='确认'
-               cancelButtonText='取消'
-               icon="el-icon-question"
-               iconColor="green"
-               title="取消关注？"
-               @onConfirm="disFollow"
-             >
-               <el-button slot="reference" class="disabledColor">已关注</el-button>
-             </el-popconfirm>
-           </span>
-           <span v-else>
-             <el-button slot="reference" @click="follow">关注</el-button>
-           </span>
-           <el-button slot="reference" @click="toPlate(plateInfo)">进入板块</el-button>
+           <footer class="plate_footer">
+             <span v-if="plateInfo.isFollow">
+               <el-popconfirm
+                 confirmButtonText='确认'
+                 cancelButtonText='取消'
+                 icon="el-icon-question"
+                 iconColor="red"
+                 title="取消关注？"
+                 @onConfirm="disFollow"
+               >
+                 <el-button slot="reference" class="disabledColor" size="medium">已关注</el-button>
+               </el-popconfirm>
+             </span>
+             <span v-else>
+               <el-button slot="reference" @click="follow" size="medium">关注</el-button>
+             </span>
+               <el-button slot="reference" @click="toPlate(plateInfo)" size="medium">进入版块</el-button>
+           </footer>
         </div>
   </el-card>
 </template>
 
 <script>
+  import {addPlateRelate} from '@/api'
+  import {deletePlateRelate} from '@/api'
   export default {
     data() {
       return {
@@ -72,19 +77,49 @@
 
     methods: {
       follow() {
-        this.$message({
-                  message: '关注成功',
-                  type: 'success'
-                });
-        this.plateInfo.isFollow = true;
+        if(!this.$store.state.isLogin) {
+          this.CommonUtil.userLoginInfo();
+        } else {
+          var type = 0;
+          addPlateRelate(this.$store.state.user.userId, this.plateInfo.plateId,type)
+          .then(response => {
+            const data = response.data;
+
+            if(data.code == "302") {
+              this.$message({
+                        message: '关注成功',
+                        type: 'success'
+                      });
+              this.plateInfo.isFollow = true;
+            }
+          })
+        }
       },
 
       disFollow() {
-        this.plateInfo.isFollow = false;
+        if(!this.$store.state.isLogin) {
+          this.CommonUtil.userLoginInfo();
+        } else {
+          var type = 0;
+          deletePlateRelate(this.$store.state.user.userId, this.plateInfo.plateId, type)
+          .then(response => {
+            const data = response.data;
+
+            if(data.code == "303") {
+              this.$message({
+                        message: '取消关注成功',
+                        type: 'success'
+                      });
+              this.plateInfo.isFollow = false;
+            }
+          })
+
+        }
       },
 
       toPlate(plateInfo) {
-        this.$router.push({name:'plateContent',params:{plateId:plateInfo.id,plateName:plateInfo.typeName}})
+        console.log("click palte");
+        this.$router.push({name:'plateContent',params:{plateId:plateInfo.plateId,plateName:plateInfo.plateName}})
       }
 
     }
@@ -92,7 +127,7 @@
 </script>
 
 <style>
-  .palteCard{
+  .plateCard{
     border-width: 1px;
   }
   .plateImage {
@@ -110,5 +145,8 @@
    .desc {
     margin-top: 3px;
 
+  }
+  .plate_footer{
+    text-align: center;
   }
 </style>
